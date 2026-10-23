@@ -6,8 +6,9 @@ Quit:    type "bye"
 """
 
 import ollama
+from spinner import Spinner
 
-MODEL = "llama3.1:8b"
+MODEL = "qwen3-coder:30b"
 QUIT_MODEL = "qwen3-coder:30b"
 
 QUIT_CHECK_PROMPT = """You decide whether a message means the user wants to end the chat right now.
@@ -31,14 +32,20 @@ When the user asks for a quiz:
 
 def ask(messages):
     """Send the conversation to the model, print the reply as it arrives, and return it."""
+    spinner = Spinner()                  # new
+    spinner.start()                      # new
     reply = ""
     for chunk in ollama.chat(model=MODEL, messages=messages, stream=True):
         piece = chunk.message.content
+        if piece and not reply:          # new
+            spinner.stop()               # new
+            print("Jarvis: ", end="")    # new
         print(piece, end="", flush=True)
         reply += piece
         if chunk.done:
             speed = chunk.eval_count / (chunk.eval_duration / 1e9)
             print(f"\n[{chunk.eval_count} tokens, {speed:.0f} tokens/sec]", end="")
+    spinner.stop()                       # new
     print()
     return reply
 
@@ -65,7 +72,6 @@ def main():
             print("Jarvis: See you later!")
             break
         history.append({"role": "user", "content": text})
-        print("Jarvis: ", end="")
         reply = ask(history)
         history.append({"role": "assistant", "content": reply})
 
