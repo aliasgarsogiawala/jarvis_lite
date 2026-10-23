@@ -36,6 +36,9 @@ def ask(messages):
         piece = chunk.message.content
         print(piece, end="", flush=True)
         reply += piece
+        if chunk.done:
+            speed = chunk.eval_count / (chunk.eval_duration / 1e9)
+            print(f"\n[{chunk.eval_count} tokens, {speed:.0f} tokens/sec]", end="")
     print()
     return reply
 
