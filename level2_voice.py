@@ -29,8 +29,10 @@ def hear(audio):
     return result["text"].strip()
 
 def speak(text):
-    """Say text out loud in Jarvis's voice."""
-    subprocess.run(["say", "-v", VOICE, "-r", str(RATE), text])
+    """Say text out loud, highlighting each word as it's spoken."""
+    mouth = Mouth(VOICE, RATE)
+    mouth.add(text)
+    mouth.finish()
     
 
 
@@ -46,12 +48,13 @@ def main():
         text = hear(audio)
         print(f"You: {text}")
         if wants_to_quit(text):
-            print("Jarvis: See you later sir!")
+            print("Jarvis:")
             speak("See you later sir!")
             break
         history.append({"role": "user", "content": text})
+        print("Jarvis:")
         mouth = Mouth(VOICE, RATE)
-        reply = ask(history, on_piece=mouth.add)
+        reply = ask(history, on_piece=mouth.add, show=False)
         mouth.finish()
         history.append({"role": "assistant", "content": reply})
 

@@ -30,25 +30,30 @@ When the user asks for a quiz:
 - Then ask the next question. After 5 questions, tell them their score."""
 
 
-def ask(messages,on_piece=None):
-    """Send the conversation to the model, print the reply as it arrives, and return it."""
-    spinner = Spinner()                  # new
-    spinner.start()                      # new
+def ask(messages, on_piece=None, show=True):
+    """Send the conversation to the model and return its reply.
+    show=True prints the reply as it streams. Voice mode turns it off,
+    because mouth.py shows each sentence while it's being spoken."""
+    spinner = Spinner()
+    spinner.start()
     reply = ""
     for chunk in ollama.chat(model=MODEL, messages=messages, stream=True):
         piece = chunk.message.content
-        if piece and not reply:          # new
-            spinner.stop()               # new
-            print("Jarvis: ", end="")    # new
-        print(piece, end="", flush=True)
-        if on_piece:                       # new
+        if piece and not reply:
+            spinner.stop()
+            if show:
+                print("Jarvis: ", end="")
+        if show:
+            print(piece, end="", flush=True)
+        if on_piece:
             on_piece(piece)
         reply += piece
-        if chunk.done:
+        if chunk.done and show:
             speed = chunk.eval_count / (chunk.eval_duration / 1e9)
             print(f"\n[{chunk.eval_count} tokens, {speed:.0f} tokens/sec]", end="")
-    spinner.stop()                       # new
-    print()
+    spinner.stop()
+    if show:
+        print()
     return reply
 
 def wants_to_quit(text):
