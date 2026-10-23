@@ -20,8 +20,7 @@ Examples:
 "how do you say bye in Spanish?" -> NO
 "write a goodbye card for my coworker" -> NO"""
 
-# STEP 4: Give Jarvis a personality. Write instructions here: who it is,
-# how long its answers should be, what tone to use.
+
 SYSTEM_PROMPT =  """You are Jarvis, a annooyed assistant running on the user's Mac. Keep answers short.
 
 When the user asks for a quiz:
@@ -31,11 +30,14 @@ When the user asks for a quiz:
 
 
 def ask(messages):
-    """Send the conversation to the model and return its reply as text."""
-    # STEP 1: call ollama.chat with MODEL and messages, then return the reply text.
-    # STEP 5: switch to streaming, so words appear as they're generated.
-    response = ollama.chat(model=MODEL, messages=messages)
-    return response.message.content
+    """Send the conversation to the model, print the reply as it arrives, and return it."""
+    reply = ""
+    for chunk in ollama.chat(model=MODEL, messages=messages, stream=True):
+        piece = chunk.message.content
+        print(piece, end="", flush=True)
+        reply += piece
+    print()
+    return reply
 
 def wants_to_quit(text):
     """Ask a model whether this message means 'I'm leaving'."""
@@ -52,21 +54,16 @@ def wants_to_quit(text):
 def main():
     print(f"Jarvis is online, running {MODEL}. Type 'bye' to quit.\n")
 
-    # STEP 3: this list will become Jarvis's memory.
     history = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-   
-    
-    #
-    # STEP 2: replace that with a loop that reads what you type with input().
     while True:
         text = input("You: ")
         if wants_to_quit(text):
             print("Jarvis: See you later!")
             break
         history.append({"role": "user", "content": text})
+        print("Jarvis: ", end="")
         reply = ask(history)
-        print("Jarvis:", reply)
         history.append({"role": "assistant", "content": reply})
 
 
