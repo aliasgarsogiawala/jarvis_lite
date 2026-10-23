@@ -61,7 +61,8 @@ def main():
     # STEP 2: replace that with a loop that reads what you type with input().
     while True:
         text = input("You: ")
-        if text == "bye":
+        if wants_to_quit(text):
+            print("Jarvis: See you later!")
             break
         history.append({"role": "user", "content": text})
         reply = ask(history)
