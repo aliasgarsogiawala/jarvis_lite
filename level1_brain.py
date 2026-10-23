@@ -30,7 +30,7 @@ When the user asks for a quiz:
 - Then ask the next question. After 5 questions, tell them their score."""
 
 
-def ask(messages):
+def ask(messages,on_piece=None):
     """Send the conversation to the model, print the reply as it arrives, and return it."""
     spinner = Spinner()                  # new
     spinner.start()                      # new
@@ -41,6 +41,8 @@ def ask(messages):
             spinner.stop()               # new
             print("Jarvis: ", end="")    # new
         print(piece, end="", flush=True)
+        if on_piece:                       # new
+            on_piece(piece)
         reply += piece
         if chunk.done:
             speed = chunk.eval_count / (chunk.eval_duration / 1e9)

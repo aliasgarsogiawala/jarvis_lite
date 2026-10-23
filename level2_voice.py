@@ -6,20 +6,21 @@ Quit:    say "bye"
 """
 
 import subprocess
-
+from mouth import Mouth
 import mlx_whisper
 
 from ears import is_silent, record
 from level1_brain import MODEL, SYSTEM_PROMPT, ask, wants_to_quit
 
 WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo"
-VOICE = "Daniel"
+VOICE = "Samantha"
+RATE=220
 
 # STEP 3: Jarvis's replies are spoken now. Add a rule so it talks like a
 # person instead of writing like a document.
 VOICE_PROMPT = VOICE_PROMPT = SYSTEM_PROMPT + """
 
-Your replies are spoken aloud, so talk like a person: plain sentences, no markdown, lists or emojis."""
+Your replies are spoken aloud, so talk like a person: plain sentences, no markdown, lists or emojis. Also make mean comments"""
 
 
 def hear(audio):
@@ -29,7 +30,8 @@ def hear(audio):
 
 def speak(text):
     """Say text out loud in Jarvis's voice."""
-    subprocess.run(["say", "-v", VOICE, text])
+    subprocess.run(["say", "-v", VOICE, "-r", str(RATE), text])
+    
 
 
 def main():
@@ -44,13 +46,15 @@ def main():
         text = hear(audio)
         print(f"You: {text}")
         if wants_to_quit(text):
-            print("Jarvis: See you later!")
-            speak("See you later!")
+            print("Jarvis: See you later sir!")
+            speak("See you later sir!")
             break
         history.append({"role": "user", "content": text})
-        reply = ask(history)
+        mouth = Mouth(VOICE, RATE)
+        reply = ask(history, on_piece=mouth.add)
+        mouth.finish()
         history.append({"role": "assistant", "content": reply})
-        speak(reply)
+
 
 
 if __name__ == "__main__":
