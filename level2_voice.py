@@ -5,7 +5,7 @@ Run it:  uv run level2_voice.py
 Quit:    say "bye"
 """
 
-import subprocess
+
 from mouth import Mouth
 import mlx_whisper
 
@@ -15,12 +15,9 @@ from level1_brain import MODEL, SYSTEM_PROMPT, ask, wants_to_quit
 WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo"
 VOICE = "Samantha"
 RATE=220
+VOICE_PROMPT = SYSTEM_PROMPT + """
 
-# STEP 3: Jarvis's replies are spoken now. Add a rule so it talks like a
-# person instead of writing like a document.
-VOICE_PROMPT = VOICE_PROMPT = SYSTEM_PROMPT + """
-
-Your replies are spoken aloud, so talk like a person: plain sentences, no markdown, lists or emojis. Also make mean comments"""
+Your replies are spoken aloud, so talk like a person: plain sentences, no markdown, lists or emojis. Also talk like JARVIS did to Tony Stark . Like I am your master"""
 
 
 def hear(audio):
@@ -47,16 +44,15 @@ def main():
             continue
         text = hear(audio)
         print(f"You: {text}")
-        if wants_to_quit(text):
-            print("Jarvis:")
-            speak("See you later sir!")
-            break
+        quitting = wants_to_quit(text)
         history.append({"role": "user", "content": text})
         print("Jarvis:")
         mouth = Mouth(VOICE, RATE)
         reply = ask(history, on_piece=mouth.add, show=False)
         mouth.finish()
         history.append({"role": "assistant", "content": reply})
+        if quitting:
+            break
 
 
 
