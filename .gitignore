@@ -1,2 +1,6 @@
 __pycache__/
 .DS_Store
+
+# Personal: your project paths and what you ask Jarvis
+projects.json
+activity_log.jsonl
